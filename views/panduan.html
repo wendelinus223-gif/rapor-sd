@@ -4,56 +4,58 @@
             <h2 class="text-2xl font-bold text-white tracking-wide flex items-center gap-2">
                 <i data-lucide="book-open" class="w-6 h-6 text-blue-400"></i> Panduan Penggunaan Aplikasi
             </h2>
-            <p class="text-slate-300 text-sm">Petunjuk langkah demi langkah untuk mengoperasikan sistem Rapor SD Multi-Sekolah.</p>
+            <p class="text-slate-300 text-sm">Petunjuk langkah demi langkah untuk mengoperasikan sistem Rapor SD Multi-Sekolah & Multi-Role Wali Kelas.</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- 1. Akses & Login Multi-Sekolah -->
+        <!-- 1. Akses Multi-Sekolah & Multi-Role -->
         <div class="glass-card p-5 rounded-2xl space-y-3">
             <h3 class="text-base font-bold text-blue-400 flex items-center gap-2 border-b border-slate-700/60 pb-2">
-                <i data-lucide="key-round" class="w-5 h-5"></i> 1. Akses & Multi-Sekolah
+                <i data-lucide="key-round" class="w-5 h-5"></i> 1. Akses Multi-Sekolah & Peran Pengguna
             </h3>
             <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
-                <li><strong class="text-white">Daftar Sekolah Baru:</strong> Klik <em>"+ Daftarkan Sekolah Baru"</em> di modal login, masukkan NPSN unik, Nama Sekolah, dan Password.</li>
-                <li><strong class="text-white">Login System:</strong> Masukkan NPSN dan Password terdaftar untuk masuk ke database sekolah Anda.</li>
-                <li><strong class="text-white">Isolasi Data:</strong> Setiap sekolah yang terdaftar via NPSN memiliki ruang penyimpanan terpisah yang aman di peramban (localStorage).</li>
+                <li><strong class="text-white">Registrasi Sekolah:</strong> Klik <em>"+ Daftarkan Sekolah Baru"</em> di modal login, masukkan NPSN unik, Nama Sekolah, dan Password Admin.</li>
+                <li><strong class="text-white">Akun Admin Sekolah:</strong> Login menggunakan <strong>NPSN Sekolah</strong>. Admin memiliki akses penuh ke seluruh kelas, data identitas sekolah, pengaturan password wali kelas, serta pencetakan dokumen resmi.</li>
+                <li><strong class="text-white">Akun Wali Kelas:</strong> Login menggunakan format <strong>NPSN-KELAS</strong> (contoh: <code>50102030-VI</code>) dan password yang dibuatkan Admin. Tampilan otomatis terkunci hanya pada kelas yang diampu.</li>
+                <li><strong class="text-white">Isolasi Database:</strong> Setiap sekolah terisolasi dalam memori lokal, sehingga data antar-sekolah tidak akan saling bercampur.</li>
             </ul>
         </div>
 
-        <!-- 2. Dashboard & Pemantauan -->
+        <!-- 2. Dashboard & Pemantauan Per Kelas -->
         <div class="glass-card p-5 rounded-2xl space-y-3">
             <h3 class="text-base font-bold text-emerald-400 flex items-center gap-2 border-b border-slate-700/60 pb-2">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i> 2. Dashboard & Monitoring
             </h3>
             <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
-                <li><strong class="text-white">Ringkasan Utama:</strong> Memantau total siswa terdaftar, NPSN sekolah aktif, serta Tahun Ajaran dan Semester.</li>
-                <li><strong class="text-white">Distribusi Predikat:</strong> Melihat persentase pencapaian nilai (Predikat A, B, C, D, E) seluruh siswa secara visual.</li>
-                <li><strong class="text-white">Status Kelengkapan:</strong> Indikator progress bar untuk memastikan berapa banyak siswa yang nilai rapornya sudah terisi 100%.</li>
+                <li><strong class="text-white">Ringkasan Sesuai Peran:</strong> Admin melihat total seluruh siswa sekolah, sedangkan Wali Kelas fokus memantau statistik total siswa di kelasnya.</li>
+                <li><strong class="text-white">Distribusi Predikat:</strong> Memantau pencapaian nilai (Predikat A, B, C, D, E) seluruh mata pelajaran secara grafik visual.</li>
+                <li><strong class="text-white">Kelengkapan Rapor:</strong> Indikator persentase untuk memastikan seluruh komponen nilai siswa telah terisi penuh 100%.</li>
             </ul>
         </div>
 
-        <!-- 3. Kelola Siswa & Biodata CSV -->
+        <!-- 3. Kelola Data Peserta Didik & Wali Kelas -->
         <div class="glass-card p-5 rounded-2xl space-y-3">
             <h3 class="text-base font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/60 pb-2">
-                <i data-lucide="users" class="w-5 h-5"></i> 3. Kelola Data Peserta Didik
+                <i data-lucide="users" class="w-5 h-5"></i> 3. Kelola Siswa & Akun Wali Kelas
             </h3>
             <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
-                <li><strong class="text-white">Input Manual:</strong> Gunakan tombol <em>"+ Tambah Siswa"</em> atau tombol <em>Edit</em> untuk memperbarui biodata lengkap.</li>
-                <li><strong class="text-white">Impor/Ekspor CSV:</strong> Unduh format CSV, isi data secara massal di Excel, lalu unggah kembali via tombol <em>Impor Biodata CSV</em>.</li>
-                <li><strong class="text-white">Peringkat Kelas:</strong> Peringkat akademis dihitung otomatis berdasarkan akumulasi perolehan total nilai.</li>
+                <li><strong class="text-white">Atur Password Wali:</strong> Pada menu <em>Kelola Wali Kelas</em>, Admin dapat menyesuaikan Nama, NIP, serta menentukan Password login untuk tiap Wali Kelas.</li>
+                <li><strong class="text-white">Input & Impor Biodata CSV:</strong> Tambah/Edit data siswa dapat dilakukan secara manual atau impor masal melalui file template CSV.</li>
+                <li><strong class="text-white">Peringkat Otomatis:</strong> Peringkat akademis dihitung secara otomatis berdasarkan akumulasi total nilai rata-rata tiap siswa di kelasnya.</li>
             </ul>
         </div>
 
-        <!-- 4. Input Nilai & Cetak Rapor -->
+        <!-- 4. Penilaian Akademik (UH, UTS, UAS) & Cetak Rapor -->
         <div class="glass-card p-5 rounded-2xl space-y-3">
             <h3 class="text-base font-bold text-purple-400 flex items-center gap-2 border-b border-slate-700/60 pb-2">
-                <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> 4. Input Nilai & Cetak Rapor
+                <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> 4. Kalkulator Nilai & Hak Cetak
             </h3>
             <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
-                <li><strong class="text-white">Otomatisasi Deskripsi:</strong> Predikat dan Deskripsi Capaian Kompetensi langsung terbentuk otomatis saat nilai (0-100) diisikan.</li>
-                <li><strong class="text-white">Penyesuaian IPAS:</strong> Mapel IPAS otomatis disesuaikan (hanya tampil pada Kelas III, IV, V, dan VI).</li>
-                <li><strong class="text-white">Cetak Standar F4:</strong> Klik <em>Cetak Rapor (F4 Berkelanjutan)</em> untuk hasil cetak presisi pada kertas ukuran Folio/F4 (215 x 330 mm).</li>
+                <li><strong class="text-white">Komponen Nilai:</strong> Guru mengisikan Nilai Ulangan Harian (UH1, UH2, UH3), UTS (MID), dan UAS per mata pelajaran.</li>
+                <li><strong class="text-white">Rata-Rata Rapor Otomatis:</strong> Nilai Akhir Rapor dihitung secara otomatis dari kalkulasi akumulasi komponen nilai tanpa perlu diketik manual.</li>
+                <li><strong class="text-white">Deskripsi & Predikat Otomatis:</strong> Predikat (A-E), Capaian Kompetensi, dan Rekomendasi Deskripsi langsung tergenerasi otomatis.</li>
+                <li><strong class="text-white">Pusat Hak Cetak:</strong> Demi keamanan dan validasi berkas, cetak Rapor F4, Sampul, & Lembar Identitas dipusatkan khusus pada <strong>Akun Admin Sekolah</strong>.</li>
             </ul>
         </div>
 
@@ -63,21 +65,21 @@
                 <i data-lucide="trending-up" class="w-5 h-5"></i> 5. Transisi Tahun Ajaran & Kenaikan Kelas Masal
             </h3>
             <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
-                <li><strong class="text-white">Promosi Otomatis 1-Klik:</strong> Buka menu <em>Pulihkan/Backup Data</em> dan klik <em>"Jalankan Proses Kenaikan Kelas Masal"</em> untuk memproses pergantian tahun ajaran baru secara otomatis.</li>
-                <li><strong class="text-white">Auto-Backup Riwayat:</strong> Sebelum mutasi data berjalan, sistem mengunduh cadangan file JSON secara otomatis agar data tahun ajaran sebelumnya tersimpan aman.</li>
-                <li><strong class="text-white">Perubahan Tingkat Kelas:</strong> Siswa Kelas I s.d. V otomatis naik ke tingkat berikutnya (I&rarr;II, II&rarr;III, dst.). Siswa Kelas VI otomatis dinyatakan <strong>Lulus</strong> dan diarsipkan dari daftar siswa aktif.</li>
-                <li><strong class="text-white">Pembaruan Sistem:</strong> Format Tahun Ajaran otomatis bertambah (misal 2026/2027 &rarr; 2027/2028), semester diatur ke Semester 1 (Ganjil), dan database nilai di-reset agar bersih untuk penginputan nilai baru.</li>
+                <li><strong class="text-white">Fitur Khusus Admin:</strong> Buka menu <em>Pulihkan/Backup Data</em> dan klik <em>"Jalankan Proses Kenaikan Kelas Masal"</em> saat pergantian tahun ajaran.</li>
+                <li><strong class="text-white">Auto-Backup Arsip:</strong> Sistem mengunduh file cadangan JSON riwayat tahun lalu secara otomatis sebelum mutasi berjalan.</li>
+                <li><strong class="text-white">Promosi & Kelulusan:</strong> Siswa Kelas I s.d. V otomatis naik tingkat (I&rarr;II, II&rarr;III, dst.). Siswa Kelas VI dinyatakan <strong>Lulus</strong> dan dikeluarkan dari daftar siswa aktif.</li>
+                <li><strong class="text-white">Reset Nilai:</strong> Tahun Ajaran bertambah otomatis (misal 2026/2027 &rarr; 2027/2028), Semester diatur ke Ganjil, dan database nilai dibersihkan untuk penginputan periode baru.</li>
             </ul>
         </div>
     </div>
 
-    <!-- 6. Catatan Penting & Backup Data -->
+    <!-- 6. Pemeliharaan & Cadangan Data -->
     <div class="glass-card p-5 rounded-2xl space-y-3">
         <h3 class="text-base font-bold text-rose-400 flex items-center gap-2 border-b border-slate-700/60 pb-2">
-            <i data-lucide="shield-check" class="w-5 h-5"></i> 6. Pemeliharaan & Cadangan Data (Backup)
+            <i data-lucide="shield-check" class="w-5 h-5"></i> 6. Pemeliharaan & Backup Data
         </h3>
         <p class="text-xs text-slate-300 leading-relaxed">
-            Sistem menyimpan seluruh data di memori peramban (<strong class="text-white">localStorage</strong>). Untuk menghindari kehilangan data saat peramban dibersihkan, pastikan Anda secara berkala melakukan <strong class="text-emerald-400">Download Backup JSON</strong> pada menu <em>Backup & Restore Data</em>.
+            Data tersimpan secara lokal di peramban (<strong class="text-white">localStorage</strong>). Pastikan Admin Sekolah melakukan <strong class="text-emerald-400">Download Backup JSON</strong> secara berkala agar data tetap aman jika komputer atau peramban dibersihkan.
         </p>
     </div>
 </div>
