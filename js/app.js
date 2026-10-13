@@ -549,20 +549,99 @@ function initSekolahData() {
         switchTab('dashboard');
         return;
     }
-    if (document.getElementById('sek-yayasan')) document.getElementById('sek-yayasan').value = db.sekolah.pemerintahYayasan;
-    if (document.getElementById('sek-nama')) document.getElementById('sek-nama').value = db.sekolah.namaSekolah;
-    if (document.getElementById('sek-alamat')) document.getElementById('sek-alamat').value = db.sekolah.alamat;
-    if (document.getElementById('sek-kodepos')) document.getElementById('sek-kodepos').value = db.sekolah.kodePosTelp;
-    if (document.getElementById('sek-desa')) document.getElementById('sek-desa').value = db.sekolah.desaKelurahan;
-    if (document.getElementById('sek-kecamatan')) document.getElementById('sek-kecamatan').value = db.sekolah.kecamatan;
-    if (document.getElementById('sek-kabupaten')) document.getElementById('sek-kabupaten').value = db.sekolah.kabupaten;
-    if (document.getElementById('sek-provinsi')) document.getElementById('sek-provinsi').value = db.sekolah.provinsi;
-    if (document.getElementById('sek-logo')) document.getElementById('sek-logo').value = db.sekolah.logoUrl;
-    if (document.getElementById('sek-tahun')) document.getElementById('sek-tahun').value = db.sekolah.tahunAjaran;
-    if (document.getElementById('sek-semester')) document.getElementById('sek-semester').value = db.sekolah.semester;
-    if (document.getElementById('sek-kepsek')) document.getElementById('sek-kepsek').value = db.sekolah.kepsekNama;
-    if (document.getElementById('sek-nip')) document.getElementById('sek-nip').value = db.sekolah.kepsekNip;
-    if (document.getElementById('sek-tempat-cetak')) document.getElementById('sek-tempat-cetak').value = db.sekolah.tempatTanggalCetak;
+    if (document.getElementById('sek-yayasan')) document.getElementById('sek-yayasan').value = db.sekolah.pemerintahYayasan || '';
+    if (document.getElementById('sek-nama')) document.getElementById('sek-nama').value = db.sekolah.namaSekolah || '';
+    if (document.getElementById('sek-alamat')) document.getElementById('sek-alamat').value = db.sekolah.alamat || '';
+    if (document.getElementById('sek-kodepos')) document.getElementById('sek-kodepos').value = db.sekolah.kodePosTelp || '';
+    if (document.getElementById('sek-desa')) document.getElementById('sek-desa').value = db.sekolah.desaKelurahan || '';
+    if (document.getElementById('sek-kecamatan')) document.getElementById('sek-kecamatan').value = db.sekolah.kecamatan || '';
+    if (document.getElementById('sek-kabupaten')) document.getElementById('sek-kabupaten').value = db.sekolah.kabupaten || '';
+    if (document.getElementById('sek-provinsi')) document.getElementById('sek-provinsi').value = db.sekolah.provinsi || '';
+    if (document.getElementById('sek-logo')) document.getElementById('sek-logo').value = db.sekolah.logoUrl || '';
+    if (document.getElementById('sek-tahun')) document.getElementById('sek-tahun').value = db.sekolah.tahunAjaran || '';
+    if (document.getElementById('sek-semester')) document.getElementById('sek-semester').value = db.sekolah.semester || '';
+    if (document.getElementById('sek-kepsek')) document.getElementById('sek-kepsek').value = db.sekolah.kepsekNama || '';
+    if (document.getElementById('sek-nip')) document.getElementById('sek-nip').value = db.sekolah.kepsekNip || '';
+    if (document.getElementById('sek-tempat-cetak')) document.getElementById('sek-tempat-cetak').value = db.sekolah.tempatTanggalCetak || '';
+}
+
+function saveIdentitasSekolah() {
+    if (!db || !db.sekolah) return;
+    if (currentUserRole === 'wali') {
+        alert("Akses ditolak. Hanya Admin Sekolah yang dapat menyimpan data identitas sekolah.");
+        return;
+    }
+
+    db.sekolah.pemerintahYayasan = document.getElementById('sek-yayasan').value;
+    db.sekolah.namaSekolah = document.getElementById('sek-nama').value;
+    db.sekolah.alamat = document.getElementById('sek-alamat').value;
+    db.sekolah.kodePosTelp = document.getElementById('sek-kodepos').value;
+    db.sekolah.desaKelurahan = document.getElementById('sek-desa').value;
+    db.sekolah.kecamatan = document.getElementById('sek-kecamatan').value;
+    db.sekolah.kabupaten = document.getElementById('sek-kabupaten').value;
+    db.sekolah.provinsi = document.getElementById('sek-provinsi').value;
+    db.sekolah.logoUrl = document.getElementById('sek-logo').value;
+    db.sekolah.tahunAjaran = document.getElementById('sek-tahun').value;
+    db.sekolah.semester = document.getElementById('sek-semester').value;
+    db.sekolah.kepsekNama = document.getElementById('sek-kepsek').value;
+    db.sekolah.kepsekNip = document.getElementById('sek-nip').value;
+    db.sekolah.tempatTanggalCetak = document.getElementById('sek-tempat-cetak').value;
+
+    saveDB();
+    alert("Data Identitas Sekolah berhasil disimpan!");
+}
+
+function printIdentitasSekolah() {
+    if (!db || !db.sekolah) {
+        alert("Data sekolah tidak ditemukan.");
+        return;
+    }
+    const sek = db.sekolah;
+    const printWin = window.open('', '_blank');
+    printWin.document.write(`
+        <html>
+        <head>
+            <title>Identitas Satuan Pendidikan - ${sek.namaSekolah}</title>
+            <style>
+                @page { size: 215mm 330mm; margin: 15mm; }
+                body { font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.6; color: #000; }
+                h2 { text-align: center; text-transform: uppercase; font-size: 14pt; margin-bottom: 25px; font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                td { padding: 6px 4px; vertical-align: top; }
+                .ttd-box { float: right; text-align: center; margin-top: 40px; width: 250px; }
+            </style>
+        </head>
+        <body onload="window.print()">
+            <h2>IDENTITAS SATUAN PENDIDIKAN</h2>
+            <table>
+                <tr><td width="35">1.</td><td width="220">Nama Sekolah</td><td width="15">:</td><td style="font-weight:bold;">${sek.namaSekolah}</td></tr>
+                <tr><td>2.</td><td>NPSN</td><td>:</td><td>${sek.npsn || '-'}</td></tr>
+                <tr><td>3.</td><td>Pemerintah / Yayasan</td><td>:</td><td>${sek.pemerintahYayasan}</td></tr>
+                <tr><td>4.</td><td>Alamat Sekolah</td><td>:</td><td>${sek.alamat}</td></tr>
+                <tr><td>5.</td><td>Kode Pos / Telepon</td><td>:</td><td>${sek.kodePosTelp}</td></tr>
+                <tr><td>6.</td><td>Desa / Kelurahan</td><td>:</td><td>${sek.desaKelurahan}</td></tr>
+                <tr><td>7.</td><td>Kecamatan</td><td>:</td><td>${sek.kecamatan}</td></tr>
+                <tr><td>8.</td><td>Kabupaten / Kota</td><td>:</td><td>${sek.kabupaten}</td></tr>
+                <tr><td>9.</td><td>Provinsi</td><td>:</td><td>${sek.provinsi}</td></tr>
+                <tr><td>10.</td><td>Situs Web (Website)</td><td>:</td><td>${sek.website || '-'}</td></tr>
+                <tr><td>11.</td><td>Email Sekolah</td><td>:</td><td>${sek.email || '-'}</td></tr>
+                <tr><td>12.</td><td>Nama Kepala Sekolah</td><td>:</td><td style="font-weight:bold;">${sek.kepsekNama}</td></tr>
+                <tr><td>13.</td><td>NIP Kepala Sekolah</td><td>:</td><td>${sek.kepsekNip}</td></tr>
+            </table>
+
+            <div style="margin-top: 40px; clear: both;">
+                <div class="ttd-box">
+                    <p>${sek.tempatTanggalCetak}</p>
+                    <p>Kepala Sekolah,</p>
+                    <br><br><br><br>
+                    <p><strong><u>${sek.kepsekNama}</u></strong></p>
+                    <p>NIP. ${sek.kepsekNip}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+    printWin.document.close();
 }
 
 function initSiswaTable() {
