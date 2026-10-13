@@ -1476,7 +1476,7 @@ function printRaporF4() {
                 .title-sec { font-weight: bold; font-size: 10pt; margin-top: 8px; margin-bottom: 4px; text-transform: uppercase; }
                 .box-catatan { border: 1px solid #000; padding: 8px; min-height: 45px; font-size: 9.5pt; margin-bottom: 10px; }
                 .ttd-grid { width: 100%; margin-top: 15px; text-align: center; font-size: 9.5pt; page-break-inside: avoid; }
-                .ttd-grid td { vertical-align: top; width: 33%; }
+                .ttd-grid td { vertical-align: top; }
             </style>
         </head>
         <body onload="window.print()">
@@ -1616,23 +1616,25 @@ function printRaporF4() {
 
             <table class="ttd-grid">
                 <tr>
-                    <td>
+                    <td style="width: ${isGenap ? '33%' : '50%'};">
                         Mengetahui,<br>Orang Tua / Wali Peserta Didik
                         <br><br><br><br>
                         <strong>( ..................................... )</strong>
                     </td>
-                    <td>
-                        <br>Wali Kelas ${siswa.kelas}
+                    <td style="width: ${isGenap ? '33%' : '50%'};">
+                        ${!isGenap ? `${db.sekolah.tempatTanggalCetak}<br>` : '<br>'}Wali Kelas ${siswa.kelas}
                         <br><br><br><br>
                         <strong><u>${wali.nama}</u></strong><br>
                         NIP. ${wali.nip}
                     </td>
-                    <td>
+                    ${isGenap ? `
+                    <td style="width: 33%;">
                         ${db.sekolah.tempatTanggalCetak}<br>Kepala Sekolah
                         <br><br><br><br>
                         <strong><u>${db.sekolah.kepsekNama}</u></strong><br>
                         NIP. ${db.sekolah.kepsekNip}
                     </td>
+                    ` : ''}
                 </tr>
             </table>
         </body>
