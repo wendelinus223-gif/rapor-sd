@@ -16,7 +16,7 @@ const MAPEL_KOLOM_B = [
 const ALL_MAPEL_HEADER = [...MAPEL_KOLOM_A, ...MAPEL_KOLOM_B];
 const KELAS_LIST = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
-// Structure Data Default untuk Sekolah Pertama (SD NEGERI 1 SOE)
+// Structure Data Default untuk Sekolah Pertama
 const DEFAULT_SCHOOL_DATA = {
     auth: { pass: 'raporsd', changed: true },
     sekolah: {
@@ -64,29 +64,7 @@ const DEFAULT_SCHOOL_DATA = {
             namaWali: '-', alamatWali: '-', telpWali: '-', pekerjaanWali: '-'
         }
     ],
-    nilai: [
-        {
-            nisn: '0123456789',
-            mapel: {
-                'Pendidikan Agama & Budi Pekerti': { kkm: 70, uh1: 95, uh2: 95, uh3: 95, uts: 95, uas: 95, nilai: 95 },
-                'Pendidikan Pancasila dan Kewarganegaraan': { kkm: 70, uh1: 88, uh2: 88, uh3: 88, uts: 88, uas: 88, nilai: 88 },
-                'Bahasa Indonesia': { kkm: 70, uh1: 85, uh2: 85, uh3: 85, uts: 85, uas: 85, nilai: 85 },
-                'Matematika': { kkm: 70, uh1: 100, uh2: 100, uh3: 100, uts: 100, uas: 100, nilai: 100 },
-                'IPAS': { kkm: 70, uh1: 75, uh2: 75, uh3: 75, uts: 75, uas: 75, nilai: 75 },
-                'Seni Budaya dan Prakarya (SBdP)': { kkm: 70, uh1: 65, uh2: 65, uh3: 65, uts: 65, uas: 65, nilai: 65 },
-                'Pendidikan Jasmani, Olahraga dan Kesehatan (PJOK)': { kkm: 70, uh1: 80, uh2: 80, uh3: 80, uts: 80, uas: 80, nilai: 80 },
-                'Muatan Lokal (Bahasa Daerah/Tenun Lokal)': { kkm: 70, uh1: 90, uh2: 90, uh3: 90, uts: 90, uas: 90, nilai: 90 }
-            },
-            ekstra: [
-                { nama: 'Pramuka', predikat: 'A', ket: 'Sangat aktif dalam kegiatan kepramukaan' },
-                { nama: 'UKS / Dokter Cilik', predikat: 'B', ket: 'Menunjukkan kepedulian kebersihan yang baik' },
-                { nama: 'Olahraga / Seni', predikat: 'A', ket: 'Sangat berbakat dan rajin berlatih' }
-            ],
-            absensi: { sakit: '0', izin: '1', alpa: '0' },
-            catatan: 'Pertahankan prestasi belajar yang sangat memuaskan ini. Tingkatkan terus kedisiplinan dan rasa percaya diri.',
-            keputusan: 'Naik Kelas'
-        }
-    ]
+    nilai: []
 };
 
 // Database Multi-Sekolah
@@ -129,6 +107,9 @@ function checkAuth() {
     if (loggedIn === 'true' && currentNpsn && multiDb.schools[currentNpsn]) {
         db = multiDb.schools[currentNpsn];
         
+        currentUserRole = sessionStorage.getItem('RAPOR_USER_ROLE') || 'admin';
+        currentWaliKelas = sessionStorage.getItem('RAPOR_WALI_KELAS') || null;
+
         if (!db.wali[0].username) {
             db.wali.forEach(w => {
                 w.username = `${db.sekolah.npsn}-${w.kelas}`;
@@ -159,11 +140,10 @@ function checkAuth() {
     }
 }
 
-// === INTERAKSI MODAL REGISTRASI & LOGIN ===
+// === INTERAKSI LOGIN & REGISTRASI ===
 function toggleRegisterModal(show) {
     const regModal = document.getElementById('register-modal');
     const loginModal = document.getElementById('login-modal');
-    
     if (show) {
         if (regModal) regModal.classList.remove('hidden');
         if (loginModal) loginModal.classList.add('hidden');
@@ -220,7 +200,6 @@ function handleRegister(e) {
 
     localStorage.setItem('RAPOR_SD_MULTI_DB', JSON.stringify(multiDb));
     alert(`Sekolah ${namaSekolah} berhasil didaftarkan!`);
-    
     document.getElementById('form-register').reset();
     toggleRegisterModal(false);
     document.getElementById('login-user').value = npsn;
@@ -231,6 +210,7 @@ document.getElementById('form-login').addEventListener('submit', (e) => {
     const userInput = document.getElementById('login-user').value.trim();
     const passInput = document.getElementById('login-pass').value.trim();
 
+    // 1. Cek Admin
     if (multiDb.schools[userInput]) {
         const schoolAcc = multiDb.schools[userInput];
         if (passInput === schoolAcc.auth.pass) {
@@ -254,11 +234,12 @@ document.getElementById('form-login').addEventListener('submit', (e) => {
         }
     }
 
+    // 2. Cek Wali Kelas
     let waliFound = false;
     Object.keys(multiDb.schools).forEach(npsnKey => {
         const school = multiDb.schools[npsnKey];
         if (school.wali) {
-            const wObj = school.wali.find(w => w.username === userInput || w.username === userInput.toUpperCase());
+            const wObj = school.wali.find(w => w.username.toLowerCase() === userInput.toLowerCase());
             if (wObj) {
                 waliFound = true;
                 if (wObj.pass === passInput) {
@@ -288,10 +269,7 @@ document.getElementById('form-login').addEventListener('submit', (e) => {
 });
 
 function logout() {
-    sessionStorage.removeItem('RAPOR_LOGGED_IN');
-    sessionStorage.removeItem('RAPOR_CURRENT_NPSN');
-    sessionStorage.removeItem('RAPOR_USER_ROLE');
-    sessionStorage.removeItem('RAPOR_WALI_KELAS');
+    sessionStorage.clear();
     location.reload();
 }
 
@@ -346,7 +324,6 @@ function calculateRanksForKelas(kelasTarget) {
     });
 
     siswaTotals.sort((a, b) => b.total - a.total);
-
     const ranks = {};
     siswaTotals.forEach((item, index) => {
         ranks[item.nisn] = item.total > 0 ? (index + 1) : '-';
@@ -364,7 +341,6 @@ function getSiswaRank(siswa) {
 
 function checkKelengkapanSiswa(siswa) {
     if (!siswa) return { status: false, persentase: 0 };
-    
     const isKelasTinggi = ['III', 'IV', 'V', 'VI'].includes(siswa.kelas);
     const listMapel = isKelasTinggi ? [...MAPEL_KOLOM_A, ...MAPEL_KOLOM_B] : [...MAPEL_KOLOM_A.filter(m => m !== 'IPAS'), ...MAPEL_KOLOM_B];
     
@@ -382,16 +358,13 @@ function checkKelengkapanSiswa(siswa) {
     return { status: persentase === 100, persentase };
 }
 
-// === PEMUAT VIEW MODULAR ASINKRONUS ===
 async function loadView(fileName) {
     try {
         const response = await fetch(`views/${fileName}`);
-        if (response.ok) {
-            return await response.text();
-        }
-        return `<p class="text-red-400 p-4">Gagal memuat tampilan views/${fileName}</p>`;
+        if (response.ok) return await response.text();
+        return `<p class="text-red-400 p-4">Gagal memuat views/${fileName}</p>`;
     } catch (err) {
-        return `<p class="text-red-400 p-4">Error memuat tampilan: ${err.message}</p>`;
+        return `<p class="text-red-400 p-4">Error: ${err.message}</p>`;
     }
 }
 
@@ -436,8 +409,6 @@ async function renderView() {
     lucide.createIcons();
 }
 
-// === FUNGSI INISIALISASI ELEMEN VIEW MODULAR ===
-
 function initDashboardData() {
     if (!db) return;
     const elTotal = document.getElementById('dash-total-siswa');
@@ -455,68 +426,6 @@ function initDashboardData() {
     if (elNpsn) elNpsn.innerText = db.sekolah.npsn || currentNpsn;
     if (elTahun) elTahun.innerText = db.sekolah.tahunAjaran;
     if (elSem) elSem.innerText = `Semester: ${db.sekolah.semester}`;
-
-    const targetSiswaList = currentUserRole === 'wali' 
-        ? db.siswa.filter(s => s.kelas === currentWaliKelas)
-        : db.siswa;
-
-    const counts = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0 };
-    let totalNilaiMasuk = 0;
-
-    targetSiswaList.forEach(s => {
-        const n = db.nilai.find(x => x.nisn === s.nisn);
-        if (n && n.mapel) {
-            Object.values(n.mapel).forEach(m => {
-                if (m.nilai !== '' && m.nilai !== null && !isNaN(m.nilai)) {
-                    const details = getNilaiDetails(m.nilai);
-                    const p = details.predikat.replace('+', '');
-                    if (counts[p] !== undefined) counts[p]++;
-                    totalNilaiMasuk++;
-                }
-            });
-        }
-    });
-
-    const elStatPredikat = document.getElementById('dash-stat-predikat');
-    if (elStatPredikat) {
-        elStatPredikat.innerHTML = ['A', 'B', 'C', 'D', 'E'].map(p => {
-            const pct = totalNilaiMasuk > 0 ? Math.round((counts[p] / totalNilaiMasuk) * 100) : 0;
-            const color = p === 'A' ? 'bg-emerald-500' : p === 'B' ? 'bg-blue-500' : p === 'C' ? 'bg-amber-500' : 'bg-rose-500';
-            return `
-                <div>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300 font-bold">Predikat ${p}</span>
-                        <span class="text-slate-400">${counts[p]} Nilai (${pct}%)</span>
-                    </div>
-                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full ${color} transition-all duration-500" style="width: ${pct}%"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    let lengkapCount = 0;
-    targetSiswaList.forEach(s => {
-        if (checkKelengkapanSiswa(s).status) lengkapCount++;
-    });
-
-    const totalSiswa = targetSiswaList.length;
-    const pctLengkap = totalSiswa > 0 ? Math.round((lengkapCount / totalSiswa) * 100) : 0;
-
-    const elStatKelengkapan = document.getElementById('dash-stat-kelengkapan');
-    if (elStatKelengkapan) {
-        elStatKelengkapan.innerHTML = `
-            <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-300">Siswa Rapor Lengkap:</span>
-                <span class="font-bold text-emerald-400 text-sm">${lengkapCount} / ${totalSiswa} Siswa</span>
-            </div>
-            <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-500 transition-all duration-500" style="width: ${pctLengkap}%"></div>
-            </div>
-            <p class="text-[11px] text-slate-400">${pctLengkap}% seluruh data nilai mata pelajaran telah terisi penuh.</p>
-        `;
-    }
 }
 
 function initSampulData() {
@@ -527,19 +436,12 @@ function initSampulData() {
 
     const siswa = targetSiswa[currentSiswaIndex] || targetSiswa[0] || { nama: '................', nis: '....', nisn: '....' };
     
-    const elLogo = document.getElementById('sampul-logo');
-    const elNama = document.getElementById('sampul-nama-siswa');
-    const elNis = document.getElementById('sampul-nis-nisn');
-    const elYayasan = document.getElementById('sampul-yayasan');
-    const elSekolah = document.getElementById('sampul-sekolah');
-    const elTahun = document.getElementById('sampul-tahun');
-
-    if (elLogo) elLogo.src = db.sekolah.logoUrl;
-    if (elNama) elNama.innerText = siswa.nama;
-    if (elNis) elNis.innerText = `${siswa.nis} / ${siswa.nisn}`;
-    if (elYayasan) elYayasan.innerText = db.sekolah.pemerintahYayasan;
-    if (elSekolah) elSekolah.innerText = db.sekolah.namaSekolah;
-    if (elTahun) elTahun.innerText = `TAHUN AJARAN ${db.sekolah.tahunAjaran}`;
+    if (document.getElementById('sampul-logo')) document.getElementById('sampul-logo').src = db.sekolah.logoUrl;
+    if (document.getElementById('sampul-nama-siswa')) document.getElementById('sampul-nama-siswa').innerText = siswa.nama;
+    if (document.getElementById('sampul-nis-nisn')) document.getElementById('sampul-nis-nisn').innerText = `${siswa.nis} / ${siswa.nisn}`;
+    if (document.getElementById('sampul-yayasan')) document.getElementById('sampul-yayasan').innerText = db.sekolah.pemerintahYayasan;
+    if (document.getElementById('sampul-sekolah')) document.getElementById('sampul-sekolah').innerText = db.sekolah.namaSekolah;
+    if (document.getElementById('sampul-tahun')) document.getElementById('sampul-tahun').innerText = `TAHUN AJARAN ${db.sekolah.tahunAjaran}`;
 }
 
 function initSekolahData() {
@@ -597,10 +499,6 @@ function initSiswaTable() {
             ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">100% Lengkap</span>`
             : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">${statKelengkapan.persentase}% Terisi</span>`;
 
-        const btnCetak = currentUserRole === 'admin' 
-            ? `<button onclick="printLembarIdentitas(${actualIndex})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded">Cetak</button>`
-            : '';
-
         return `
             <tr>
                 <td class="p-3">${idx + 1}</td>
@@ -619,7 +517,7 @@ function initSiswaTable() {
                 <td class="p-3 text-center space-x-2">
                     <button onclick="openSiswaModal(${actualIndex})" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs rounded">Edit</button>
                     <button onclick="deleteSiswa(${actualIndex})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white text-xs rounded">Hapus</button>
-                    ${btnCetak}
+                    <button onclick="printLembarIdentitas(${actualIndex})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded">Cetak</button>
                 </td>
             </tr>
         `;
@@ -686,7 +584,65 @@ function initCapaianData() {
     }
 }
 
-// === FUNGSI LOGIKA AKSI SISWA & NILAI ===
+// === FUNGSI CETAK LEMBAR IDENTITAS SISWA ===
+function printLembarIdentitas(idx) {
+    if (!db || !db.siswa || !db.siswa[idx]) {
+        alert("Data siswa tidak ditemukan.");
+        return;
+    }
+    const s = db.siswa[idx];
+    const printWin = window.open('', '_blank');
+    printWin.document.write(`
+        <html>
+        <head>
+            <title>Identitas Peserta Didik - ${s.nama}</title>
+            <style>
+                @page { size: 215mm 330mm; margin: 12.7mm; }
+                body { font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.4; color: #000; }
+                h2 { text-align: center; text-transform: uppercase; font-size: 13pt; margin-bottom: 20px; font-weight: bold; }
+                table { width: 100%; border-collapse: collapse; }
+                td { padding: 4px; vertical-align: top; }
+                .photo-box { width: 3cm; height: 4cm; border: 1px solid #000; text-align: center; line-height: 4cm; float: left; margin-top: 20px; }
+                .ttd-box { float: right; text-align: center; margin-top: 20px; width: 250px; }
+            </style>
+        </head>
+        <body onload="window.print()">
+            <h2>KETERANGAN TENTANG DIRI PESERTA DIDIK</h2>
+            <table>
+                <tr><td width="30">1.</td><td width="200">Nama Peserta Didik (Lengkap)</td><td width="10">:</td><td style="font-weight:bold;">${s.nama}</td></tr>
+                <tr><td>2.</td><td>NIS / NISN</td><td>:</td><td>${s.nis} / ${s.nisn}</td></tr>
+                <tr><td>3.</td><td>Tempat, Tanggal Lahir</td><td>:</td><td>${s.ttl}</td></tr>
+                <tr><td>4.</td><td>Jenis Kelamin</td><td>:</td><td>${s.jk}</td></tr>
+                <tr><td>5.</td><td>Agama</td><td>:</td><td>${s.agama}</td></tr>
+                <tr><td>6.</td><td>Status dalam Keluarga</td><td>:</td><td>${s.statusKeluarga}</td></tr>
+                <tr><td>7.</td><td>Anak Ke-</td><td>:</td><td>${s.anakKe}</td></tr>
+                <tr><td>8.</td><td>Alamat Peserta Didik</td><td>:</td><td>${s.alamat}</td></tr>
+                <tr><td>9.</td><td>Nomor Telepon Rumah</td><td>:</td><td>${s.telp}</td></tr>
+                <tr><td>10.</td><td>Sekolah Asal (TK)</td><td>:</td><td>${s.sekolahAsal}</td></tr>
+                <tr><td>11.</td><td>Diterima di Sekolah Ini</td><td>:</td><td>Kelas ${s.diterimaKelas}, Tanggal ${s.diterimaTanggal}</td></tr>
+                <tr><td>12.</td><td>Nama Orang Tua</td><td>:</td><td>a. Ayah: ${s.ayah}<br>b. Ibu: ${s.ibu}</td></tr>
+                <tr><td>13.</td><td>Alamat Orang Tua</td><td>:</td><td>${s.alamatOrangTua}</td></tr>
+                <tr><td>14.</td><td>Pekerjaan Orang Tua</td><td>:</td><td>a. Ayah: ${s.pekerjaanAyah}<br>b. Ibu: ${s.pekerjaanIbu}</td></tr>
+                <tr><td>15.</td><td>Nama Wali Peserta Didik</td><td>:</td><td>${s.namaWali}</td></tr>
+                <tr><td>16.</td><td>Alamat Wali</td><td>:</td><td>${s.alamatWali}</td></tr>
+                <tr><td>17.</td><td>Pekerjaan Wali</td><td>:</td><td>${s.pekerjaanWali}</td></tr>
+            </table>
+
+            <div style="margin-top: 30px; clear: both;">
+                <div class="photo-box">Pasfoto 3x4</div>
+                <div class="ttd-box">
+                    <p>${db.sekolah.tempatTanggalCetak}</p>
+                    <p>Kepala Sekolah,</p>
+                    <br><br><br>
+                    <p><strong><u>${db.sekolah.kepsekNama}</u></strong></p>
+                    <p>NIP. ${db.sekolah.kepsekNip}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+    printWin.document.close();
+}
 
 function saveWali(idx) {
     if (currentUserRole === 'wali' && db.wali[idx].kelas !== currentWaliKelas) {
@@ -855,7 +811,6 @@ function getNilaiDetails(nilaiVal) {
     return { predikat, capaian, rekomendasi };
 }
 
-// === KALKULATOR RATA-RATA OTOMATIS MAPEL (3x UH + UTS + UAS) ===
 function updateRowCalc(mapelKey) {
     const parseVal = (id) => {
         const el = document.getElementById(id);
@@ -936,14 +891,7 @@ function loadRaporEditor() {
 
     const rank = getSiswaRank(siswa);
     const isGenap = db.sekolah.semester.includes('2') || db.sekolah.semester.toLowerCase().includes('genap');
-
     const listKolomA = isKelasTinggi ? MAPEL_KOLOM_A : MAPEL_KOLOM_A.filter(m => m !== 'IPAS');
-
-    const btnCetakRapor = currentUserRole === 'admin'
-        ? `<button onclick="printRaporF4()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
-                <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Rapor (F4)
-           </button>`
-        : `<span class="px-3 py-1.5 bg-slate-800 text-slate-400 text-xs rounded-lg border border-slate-700">Pencetakan oleh Admin Sekolah</span>`;
 
     const renderTableMapel = (listMapelKey) => listMapelKey.map((m, idx) => {
         const item = (nilaiData.mapel && nilaiData.mapel[m]) ? nilaiData.mapel[m] : { kkm: 70, uh1: '', uh2: '', uh3: '', uts: '', uas: '', nilai: '' };
@@ -995,7 +943,9 @@ function loadRaporEditor() {
                 <button onclick="deleteRaporNilai()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
                 </button>
-                ${btnCetakRapor}
+                <button onclick="printRaporF4()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Rapor (F4)
+                </button>
             </div>
         </div>
 
@@ -1240,11 +1190,6 @@ function deleteRaporNilai() {
 }
 
 function printRaporF4() {
-    if (currentUserRole === 'wali') {
-        alert("Pencetakan Rapor dialokasikan khusus untuk Akun Admin Sekolah.");
-        return;
-    }
-
     const siswa = db.siswa[currentSiswaIndex] || db.siswa[0];
     const wali = db.wali.find(w => w.kelas === siswa.kelas) || { nama: '................', nip: '................' };
     const nilaiObj = db.nilai.find(n => n.nisn === siswa.nisn) || { mapel: {}, ekstra: [], absensi: {}, catatan: '', keputusan: 'Naik Kelas' };
